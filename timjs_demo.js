@@ -170,7 +170,6 @@ tc.messageHandler = function (data) {
             case 5: //流数据
                 console.log("stream message from>>>", tm.fromTid.node);
                 //流数据转字节数组
-                console.log(Base64.decodeToByteArray(tm.dataBinary));
                 break;
             default: //开发者自定义的消息
                 console.log("other message>>>", tm);
@@ -267,8 +266,6 @@ tc.streamHandler = function (data) {
     let ts = new TimStream();
     ts = JSON.parse(data);
     console.log("stream fromnode>>>", ts.fromNode);
-    //dataBinary transform to bytes  dataBinary转换为字节数组
-    console.log(Base64.decodeToByteArray(ts.dataBinary));
 };
 
 //登录
