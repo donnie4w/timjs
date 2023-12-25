@@ -73,7 +73,6 @@ const STAT = {
     VRITURLROOM_SUB: 5,
     VRITURLROOM_SUBCANCEL: 6,
 
-    ERR_OVERENTRY: 4111,
     ERR_HASEXIST: 4101,
     ERR_NOPASS: 4102,
     ERR_EXPIREOP: 4103,
@@ -86,6 +85,9 @@ const STAT = {
     ERR_BLOCK: 4110,
     ERR_OVERENTRY: 4111,
     ERR_MODIFYAUTH: 4112,
+    ERR_FORMAT: 4113,
+    ERR_BIGDATA: 4114,
+    ERR_TOKEN:4115,
 
     SEQ_STR: "|",
     SEQ_BIN: new Uint8Array([131])[0],
@@ -107,6 +109,7 @@ class TimAck {
     error = null;
     t = null;
     n = null;
+    ackInt = null;
 }
 
 class TimAuth {
@@ -261,10 +264,10 @@ class Tx {
             tm.udshow = udshow;
         }
         if (udtype > 0) {
-            this.udtype = udtype;
+            tm.udtype = udtype;
         }
         if (msgId > 0) {
-            this.mid = msgId;
+            tm.mid = msgId;
         }
         if (!timutil.isEmpty(to)) {
             tm.toTid = new Tid(to)
@@ -790,7 +793,7 @@ class timClient {
 
     LoginByToken(token, resource, termtyp) {
         this.close()
-        this.Tx.loginByToken(token, resource, termtyp)
+        this.tx.loginByToken(token, resource, termtyp)
         if (timutil.isEmpty(this.websocket)) {
             this.connect()
         }
