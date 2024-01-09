@@ -87,7 +87,7 @@ const STAT = {
     ERR_MODIFYAUTH: 4112,
     ERR_FORMAT: 4113,
     ERR_BIGDATA: 4114,
-    ERR_TOKEN:4115,
+    ERR_TOKEN: 4115,
 
     SEQ_STR: "|",
     SEQ_BIN: new Uint8Array([131])[0],
@@ -109,7 +109,8 @@ class TimAck {
     error = null;
     t = null;
     n = null;
-    ackInt = null;
+    t2 = null;
+    n2 = null;
 }
 
 class TimAuth {
@@ -196,6 +197,7 @@ class TimRoomBean {
     topic = null;
     label = null;
     gtype = null;
+    kind = null;
     createtime = null;
     extend = null;
     extra = null;
@@ -599,33 +601,42 @@ class timClient {
         if (!timutil.isEmpty(this.url)) {
             this.websocket = new WebSocket(this.url);
             this.isLogout = false;
-            let father = this;
-            this.websocket.onopen = function (evt) {
-                father.pingNum = 0;
-                father.v++;
-                father.login();
-                father.watch(father.v);
+            this.websocket.onopen = (evt) => {
+                this.pingNum = 0;
+                this.v++;
+                this.login();
+                this.watch(this.v);
             };
-            this.websocket.onclose = function (evt) {
+            this.websocket.onclose = (evt) => {
                 console.warn("onclose");
-                father.close();
-                father.websocket = null;
-                father.v++;
-                timutil.pause(2000);
-                if (!father.isLogout) {
-                    father.connect()
+                this.close();
+                this.websocket = null;
+                this.v++;
+                // await timutil.sleep(2000);
+                // if (!this.isLogout) {
+                //     this.connect()
+                // }
+                if (!this.isLogout) {
+                    this.reconnet()
                 }
             };
-            this.websocket.onerror = function (evt, e) { console.warn("onerror"); };
-            this.websocket.onmessage = function (evt) {
+            this.websocket.onerror = (evt, e) => { console.warn("onerror"); };
+            this.websocket.onmessage = (evt) => {
                 if (evt.data instanceof Blob) {
                     var reader = new FileReader();
                     reader.readAsArrayBuffer(evt.data);
-                    reader.onload = function () {
-                        father.prase(this.result);
+                    reader.onload = () => {
+                        this.prase(reader.result);
                     }
                 }
             }
+        }
+    }
+
+    async reconnet() {
+        await timutil.sleep(2000);
+        if (!this.isLogout) {
+            this.connect()
         }
     }
 
@@ -1089,10 +1100,8 @@ class timClient {
 
 
 const timutil = {
-    pause(milliseconds) {
-        var dt = new Date();
-        let i = 0;
-        while ((new Date()) - dt <= milliseconds) { i++ }
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     },
     encodePk(type, bs) {
         let pk = null;
